@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NR Bot — Discord Botu</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --surface: #0e1318;
+    --surface2: #141a22;
+    --border: #1e2733;
+    --accent: #5865F2;
+    --accent2: #7289da;
+    --text: #e6edf3;
+    --muted: #6e7c8c;
+    --green: #3fb950;
+    --green-bg: #0d2d1a;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(88,101,242,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(88,101,242,0.04) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  .glow { position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(ellipse, rgba(88,101,242,0.12) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+  nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; background: rgba(8,11,16,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: var(--mono); font-size: 15px; color: var(--accent); font-weight: 700; }
+  .nav-logo span { color: var(--muted); }
+  .nav-invite { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 20px; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+  .nav-invite:hover { background: #4752c4; }
+  main { position: relative; z-index: 1; }
+  .hero { text-align: center; padding: 6rem 2rem 4rem; max-width: 700px; margin: 0 auto; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(88,101,242,0.1); border: 1px solid rgba(88,101,242,0.3); border-radius: 20px; padding: 5px 14px; font-size: 13px; color: var(--accent2); margin-bottom: 1.5rem; }
+  .hero-badge::before { content: '●'; font-size: 8px; color: var(--green); }
+  .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 600; line-height: 1.1; margin-bottom: 1rem; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 1.1rem; color: var(--muted); line-height: 1.8; margin-bottom: 2rem; }
+  .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 14px 28px; font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; }
+  .btn-primary:hover { background: #4752c4; transform: translateY(-2px); }
+  .btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 14px 28px; font-size: 15px; text-decoration: none; transition: border-color 0.2s; }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .stats { display: flex; justify-content: center; max-width: 500px; margin: 4rem auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .stat { flex: 1; padding: 1.5rem 1rem; text-align: center; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-num { font-family: var(--mono); font-size: 1.5rem; color: var(--accent); font-weight: 700; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .section { max-width: 900px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+  .section-header h2 { font-size: 1.3rem; font-weight: 500; }
+  .tag { font-family: var(--mono); font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+  .tag-fun { background: rgba(88,101,242,0.15); color: var(--accent2); border: 1px solid rgba(88,101,242,0.2); }
+  .tag-admin { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid rgba(63,185,80,0.2); }
+  .tag-ai { background: rgba(240,185,11,0.1); color: #e3b341; border: 1px solid rgba(240,185,11,0.2); }
+  .commands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .cmd { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; transition: border-color 0.2s, background 0.2s; }
+  .cmd:hover { border-color: rgba(88,101,242,0.4); background: var(--surface2); }
+  .cmd-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cmd-name { font-family: var(--mono); font-size: 13px; color: #58a6ff; font-weight: 700; }
+  .cmd-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .prefix-section { max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
+  .prefix-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .prefix-box h3 { font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
+  .prefix-box p { font-size: 13px; color: var(--muted); }
+  .prefix-code { font-family: var(--mono); font-size: 2rem; font-weight: 700; color: var(--accent); background: rgba(88,101,242,0.1); border: 1px solid rgba(88,101,242,0.2); border-radius: 10px; padding: 12px 24px; }
+  .cta { text-align: center; padding: 4rem 2rem 6rem; max-width: 600px; margin: 0 auto; }
+  .cta h2 { font-size: 2rem; font-weight: 600; margin-bottom: 1rem; }
+  .cta p { color: var(--muted); margin-bottom: 2rem; font-size: 1rem; line-height: 1.7; }
+  footer { border-top: 1px solid var(--border); text-align: center; padding: 1.5rem; font-size: 13px; color: var(--muted); position: relative; z-index: 1; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<nav>
+  <div class="nav-logo">NR<span>Bot</span></div>
+  <a class="nav-invite" href="https://discord.com/oauth2/authorize?client_id=1509881243200655510&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank">Sunucuna Ekle</a>
+</nav>
+<main>
+  <section class="hero">
+    <div class="hero-badge">Çevrimiçi ve Hazır</div>
+    <h1>Sunucunu <span>güçlendir</span><br>NR Bot ile</h1>
+    <p>Eğlence, yönetim ve yapay zeka komutlarıyla Discord sunucunuzu bir üst seviyeye taşıyın.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="https://discord.com/oauth2/authorize?client_id=1509881243200655510&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank">💜 Sunucuna Ekle</a>
+      <a class="btn-secondary" href="#komutlar">Komutları Gör →</a>
+    </div>
+  </section>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">10+</div><div class="stat-label">Komut</div></div>
+    <div class="stat"><div class="stat-num">7/24</div><div class="stat-label">Aktif</div></div>
+    <div class="stat"><div class="stat-num">Ücretsiz</div><div class="stat-label">Kullanım</div></div>
+  </div>
+  <div class="prefix-section">
+    <div class="prefix-box">
+      <div><h3>Bot Prefix</h3><p>Tüm komutları bu prefix ile kullanın</p></div>
+      <div class="prefix-code">nr!</div>
+    </div>
+  </div>
+  <section class="section" id="komutlar">
+    <div class="section-header"><h2>Eğlence Komutları</h2><span class="tag tag-fun">fun</span></div>
+    <div class="commands-grid">
+      <div class="cmd"><div class="cmd-top"><span class="cmd-name">nr!evlen @kullanıcı</span><span class="tag tag-fun">fun</span></div><div class="cmd-desc">Bir kullanıcıya evlilik teklifi gönderir. Kabul/red butonlarıyla interaktif!</div></div>
+      <div class="cmd"><div class="cmd-top"><span class="cmd-name">nr!boşan</span><span class="tag tag-fun">fun</span></div><div class="cmd-desc">Mevcut evliliği sonlandırır.</div></div>
+    </div>
+    <div class="section-header" style="margin-top: 2rem;"><h2>AI Komutları</h2><span class="tag tag-ai">ai</span></div>
+    <div class="commands-grid">
+      <div class="cmd"><div class="cmd-top"><span class="cmd-name">nr!sor [soru]</span><span class="tag tag-ai">ai</span></div><div class="cmd-desc">20+ konuda anahtar kelime tabanlı Türkçe yapay zeka cevapları alır.</div></div>
+    </div>
+    <div class="section-header" style="margin-top: 2rem;"><h2>Yönetim Komutları</h2><span class="tag tag-admin">admin</span></div>
+    <div class="commands-grid">
+      <div class="cmd"><div class="cmd-top"><span class="cmd-name">nr!duyuru [mesaj]</span><span class="tag tag-admin">admin</span></div><div class="cmd-desc">Duyuru kanalına @everyone ile mesaj gönderir.</div></div>
+      <div class="cmd"><div class="cmd-top"><span class="cmd-name">nr!otorol @rol</span><span class="tag tag-admin">admin</span></div><div class="cmd-desc">Yeni üyelere otomatik rol atar ve veritabanına kaydeder.</div></div>
+      <div class="cmd"><div class="cmd-top"><span class="cmd-name">nr!şikayet [mesaj]</span><span class="tag tag-admin">admin</span></div><div class="cmd-desc">Mod-log / yetkililer kanalına şikayet iletir, mesajı siler.</div></div>
+    </div>
+  </section>
+  <div class="cta">
+    <h2>Hemen başla 🚀</h2>
+    <p>NR Bot'u sunucuna eklemek sadece birkaç saniye alır. Ücretsiz, kolay ve hızlı!</p>
+    <a class="btn-primary" href="https://discord.com/oauth2/authorize?client_id=1509881243200655510&permissions=8&integration_type=0&scope=bot+applications.commands" target="_blank">💜 Sunucuna Ekle</a>
+  </div>
+</main>
+<footer>NR Bot &nbsp;·&nbsp; Replit üzerinde çalışır &nbsp;·&nbsp; Tüm hakları saklıdır</footer>
+</body>
+</html>
